@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">INCOM Tasks</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">5lbXGRJJliaIMR8fNWByQcgm-cDii1j02RcPp</string>
+</resources>

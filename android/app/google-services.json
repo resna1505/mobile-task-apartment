@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "327188182780",
+    "firebase_url": "https://incom-infinitec-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "incom-infinitec",
+    "storage_bucket": "incom-infinitec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327188182780:android:dbbb8acc4a2a6715934979",
+        "android_client_info": {
+          "package_name": "com.royale"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327188182780-hdiomhi4bvv92k8kitqe5gtritfsmtke.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFEmja_0N7YjrFxZHVJq4FzMADGTIEr4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327188182780-hdiomhi4bvv92k8kitqe5gtritfsmtke.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327188182780:android:32280b70736c8848934979",
+        "android_client_info": {
+          "package_name": "com.royale_springhill"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327188182780-hdiomhi4bvv92k8kitqe5gtritfsmtke.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFEmja_0N7YjrFxZHVJq4FzMADGTIEr4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327188182780-hdiomhi4bvv92k8kitqe5gtritfsmtke.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
