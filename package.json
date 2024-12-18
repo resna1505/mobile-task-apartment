@@ -11,7 +11,7 @@
     "release_windows": "cd android && gradlew assembleRelease && cd ..",
     "release_android": "react-native run-android --variant=release",
     "gradlew_clean": "cd android && gradlew clean && cd ..",
-    "gradlew_release_android": "cd android && gradlew clean && cd .. && react-native run-android --variant=release",
+    "clean_release": "cd android && gradlew clean && cd .. && react-native run-android --variant=release",
     "bundle_js": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res"
   },
   "dependencies": {
