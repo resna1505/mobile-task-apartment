@@ -33,7 +33,7 @@ import {
 
 import {RootStackParamList, Stacks} from '../../../../../route/shared';
 import {useSwipe} from '../../../../components/useSwipe';
-import {useSharedValue, withTiming} from 'react-native-reanimated';
+import {log, useSharedValue, withTiming} from 'react-native-reanimated';
 import {baseUrl, request} from '../../../../Api';
 import Loading from '../../../../components/loading';
 import moment from 'moment';
@@ -121,7 +121,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   const [image, setImage] = useState('');
 
   const showImage = (url: any) => {
-    console.log(url, 'xxxxx');
     setModalVisible(!modalVisible);
     setViewImage(url);
   };
@@ -135,7 +134,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
         setStatuses(res.data.taskStatus);
       }
     } catch (error) {
-      console.log(error, 'error');
     }
   };
 
@@ -181,10 +179,10 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
       id: 2,
       label: 'Resolved',
     },
-    {
-      id: 3,
-      label: 'Done',
-    },
+    // {
+    //   id: 3,
+    //   label: 'Done',
+    // },
   ];
 
   const switchTab = (id: number) => {
@@ -213,12 +211,8 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   };
 
   // const download = async (item: any) => {
-  //   console.log('download')
-  //   console.log(item, 'itemms')
   //   const url = `${baseUrl}taskFile/files/download/${item.taskFileSource}`;
-  //   console.log(url, 'urllll')
   //   const path = RNFS.DownloadDirectoryPath +`/springhill/`;
-  //   console.log(path, 'xxxxx')
   //   await RNFS.mkdir(path)
   //     .then(() => {
   //       const downloads = RNFS.downloadFile({
@@ -228,14 +222,11 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   //         background: true,
   //         discretionary: true,
   //         progress: (res) => {
-  //           console.log((res.bytesWritten / res.contentLength).toFixed(2));
   //         },
   //       });
   //       downloads.promise
   //         .then((res) => {
-  //           console.log(res, 'download')
   //           if (res.statusCode === 200) {
-  //             console.log(res);
   //             ToastAndroid.show('File Downloaded', ToastAndroid.LONG);
   //           } else {
   //             ToastAndroid.show(
@@ -244,10 +235,8 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   //             );
   //           }
   //         })
-  //         .catch((err) => console.log(err, 'err download'));
   //     })
   //     .catch((err) => {
-  //       console.log(err, 'create dir');
   //     });
   // };
 
@@ -263,13 +252,11 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
         quality: 0.5,
       });
       if (res) {
-        console.log(res, 'res');
         setImage(res.assets[0]?.uri || '');
         setFile(res.assets[0]?.base64 || '');
         setVisibleCamera(!visibleCamera);
       }
     } catch (error) {
-      console.log(error, 'error pick image');
       setVisibleCamera(!visibleCamera);
     }
   };
@@ -282,13 +269,11 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
         quality: 0.5,
       });
       if (res) {
-        console.log(res, 'res');
         setImage(res.assets[0]?.uri || '');
         setFile(res.assets[0]?.base64 || '');
         setVisibleCamera(!visibleCamera);
       }
     } catch (error) {
-      console.log(error, 'error pick image');
       setVisibleCamera(!visibleCamera);
     }
   };
@@ -297,7 +282,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
     setLoading(true);
     const url = `${baseUrl}subTask/changeStatus/${item.id}`;
     setLoad(!load);
-    console.log(item.id);
     try {
       const res = await axios.patch(
         url,
@@ -311,12 +295,10 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
         },
       );
       if (res) {
-        console.log(res.data, 'res');
         setLoading(false);
         setLoad(!load);
       }
     } catch (error) {
-      console.log(error, 'error');
     }
   };
 
@@ -335,12 +317,10 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
         },
       );
       if (res) {
-        console.log(res.data, 'res');
         setLoad(!load);
         getData();
       }
     } catch (error) {
-      console.log(error, 'error');
     }
   };
 
@@ -353,17 +333,14 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
         attachment: file !== '' ? 'data:image/png;base64,' + file : '',
       };
       try {
-        console.log(body);
         const res = await request.post(url, body);
         if (res) {
-          console.log(res.data);
           setLoad(!load);
           setComment('');
           setFile('');
           setImage('');
         }
       } catch (error) {
-        console.log({...error}, 'error');
       } finally {
         setLoading(false);
       }
@@ -753,7 +730,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 <SelectDropdown
                   data={status}
                   onSelect={(selectedItem, index) => {
-                    console.log(selectedItem.label, index);
                     changeStatus(selectedItem.label);
                   }}
                   dropdownStyle={{borderRadius: 10}}
@@ -861,6 +837,29 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
               paddingRight: 5,
             }}>
             {data.taskDescription}
+          </Text>
+        </View>
+
+        <View style={{marginTop: 36, paddingHorizontal: 21}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text
+              style={{
+                fontFamily: 'NunitoSans-Bold',
+                fontSize: 14,
+                color: '#ADB5BD',
+              }}>
+              Unit
+            </Text>
+          </View>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'NunitoSans-Regular',
+              color: '#555',
+              marginTop: 5,
+              paddingRight: 5,
+            }}>
+            {data.unit?.unitName ? data.unit.unitName : '-'}
           </Text>
         </View>
 

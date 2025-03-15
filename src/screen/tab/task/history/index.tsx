@@ -382,7 +382,6 @@ const History: FC<Props> = ({navigation, route}: any) => {
 
   const getData = async (dates: any) => {
     const token: any = await AsyncStorage.getItem('access_token');
-    console.log('get data', dates);
     setLoading(true);
     try {
       const res = await axios.get(`${baseUrl}task/mobile/history/${dates}`, {
@@ -398,7 +397,6 @@ const History: FC<Props> = ({navigation, route}: any) => {
       await setTimeout(() => {
         setLoading(false);
         setErrors(err.response.data.message);
-        console.log('errror home', {...err});
         if (err?.response.status == 404) {
           ToastAndroid.show(err?.message, ToastAndroid.SHORT);
           // setErrors(err);

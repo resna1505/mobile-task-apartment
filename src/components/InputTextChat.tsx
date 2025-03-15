@@ -7,7 +7,6 @@ import Warning from 'react-native-vector-icons/AntDesign';
 const InputText = (props: any) => {
   const onChangeText = (value: any) => {
     const {name} = props;
-    // console.log('propts', props)
     props.onChangeValue(name, value);
   };
 

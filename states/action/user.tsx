@@ -18,8 +18,6 @@ export const fetchLogin = async (email: any, password: any) => {
         password: password,
       });
       if (res) {
-        console.log('ok',ENDPOINT_LIVE);
-        console.log(email, password);
         setTimeout(() => {
         //   navigation.replace('Tab', {
         //     screen: 'Home',
@@ -34,9 +32,6 @@ export const fetchLogin = async (email: any, password: any) => {
         }, 1500);
       }
     } catch (err: any) {
-      console.log('error', {...err});
-      console.log('err',ENDPOINT_LIVE);
-      console.log(email, password);
       await setTimeout(() => {
         // dispatch({type: LOADING, loading: false});
         if (err?.response.data?.status == 401) {

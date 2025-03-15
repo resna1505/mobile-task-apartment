@@ -304,7 +304,6 @@ const Schedule: FC<Props> = ({navigation, route}: any) => {
     try {
       const res = await request.get(`mobile/work/${content}`);
       if (res) {
-        console.log(res.data, 'HHHH')
         setTimeout(() => {
           setErrors(null);
           setLoading(false);
@@ -316,7 +315,6 @@ const Schedule: FC<Props> = ({navigation, route}: any) => {
       await setTimeout(() => {
         setLoading(false);
         setErrors(err.response.data.message);
-        console.log('errror home', {...err});
         if (err?.response.status == 404) {
           ToastAndroid.show(err?.message, ToastAndroid.SHORT);
           // setErrors(err);

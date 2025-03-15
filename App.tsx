@@ -11,7 +11,6 @@ const App: FC = () => {
 
   useEffect(() => {
     messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
     });
   }, []);
   

@@ -39,7 +39,6 @@ const Notification: FC<Props> = ({route}: any) => {
     setLoading(true);
     try {
       const res = await request.get(url);
-      console.log(res, 'xxx')
       setData(res.data.data.reverse())
     } catch (err: any) {
      
@@ -73,7 +72,6 @@ const Notification: FC<Props> = ({route}: any) => {
       } else {
         navigation.navigate(Stacks.Task)
       }
-      console.log(error, 'error');
     }
   };
 
@@ -81,7 +79,6 @@ const Notification: FC<Props> = ({route}: any) => {
   //   const url = `mobile/${value.id}/read`;
   //   try {
   //     const res = await request.patch(url);
-  //     console.log(res, 'terbaca')
   //     // setData(res.data.data.reverse())
   //     navigation.navigate(Stacks.DetailTask, {id: value.notificationData.taskId})
   //   } catch (err: any) {

@@ -70,11 +70,9 @@ const Home: FC<Props> = ({route}: any) => {
         Authorization: 'Bearer ' + store.getState().auth.token,
       });
       if (res) {
-        console.log(res.data, 'LLL')
         setDataProfile(res.data)
       }
     } catch (error) {
-      console.log(error, 'error');
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -87,12 +85,9 @@ const Home: FC<Props> = ({route}: any) => {
     setLoading(true);
     try {
       const res = await request.get(url);
-      console.log(res, 'xxxxx=======')
       if (res) {
-        console.log(res.data);
         setLoading(false);
         setRefresh(false)
-        // console.log('home res', res);
         setTask(res.data.task);
         setWork(res.data.work);
         setBoardData(res.data.work);
@@ -102,8 +97,6 @@ const Home: FC<Props> = ({route}: any) => {
       await setTimeout(() => {
         // setLoading(false);
         setRefresh(false)
-        // setErrors(err.response.data.message)
-        console.log('errror home', err.response.data);
         if (err?.response.status == 404) {
           ToastAndroid.show(err?.message, ToastAndroid.SHORT);
           setErrors(err);

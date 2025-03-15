@@ -36,7 +36,6 @@ const Forgot = () => {
       'keyboardDidShow',
       () => {
         setKeyboardVisible(true); // or some other action
-        console.log('keyboard', isKeyboardVisible);
       },
     );
     const keyboardDidHideListener = Keyboard.addListener(
@@ -82,7 +81,6 @@ const Forgot = () => {
       await setTimeout(() => {
         setLoading(false);
         // setErrors(err.response.data.message)
-        console.log('errror home', {...err});
         if (err?.response.status == 404) {
           ToastAndroid.show(err?.message, ToastAndroid.SHORT);
           setErrors(err);

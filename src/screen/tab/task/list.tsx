@@ -337,7 +337,6 @@ const Schedule: FC<Props> = ({navigation, route}: any) => {
 
   const isFocused = useIsFocused();
   useEffect(() => {
-    console.log(route.params.id)
     getData(selectedLabel);
   }, [isFocused, selectedLabel]);
 
@@ -355,7 +354,6 @@ const Schedule: FC<Props> = ({navigation, route}: any) => {
     try {
       const res = await request.get(`mobile/work/${route.params.id}/${content}`);
       if (res) {
-        console.log(res.data, 'sennn====')
         setTimeout(() => {
           setErrors(null);
           setLoading(false);
@@ -367,7 +365,6 @@ const Schedule: FC<Props> = ({navigation, route}: any) => {
       await setTimeout(() => {
         setLoading(false);
         setErrors(err.response.data.message);
-        console.log('errror home', {...err});
         if (err?.response.status == 404) {
           ToastAndroid.show(err?.message, ToastAndroid.SHORT);
           // setErrors(err);

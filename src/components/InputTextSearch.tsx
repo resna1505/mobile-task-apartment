@@ -4,10 +4,8 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Warning from 'react-native-vector-icons/AntDesign';
 
 const InputText = (props: any) => {
-  console.log('propts', props)
   const onChangeText = (value: any) => {
     const {name} = props;
-    console.log('propts', props)
     props.onChangeValue(name, value);
   };
 

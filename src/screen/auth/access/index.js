@@ -54,11 +54,9 @@ const Access: FC<Props> = ({navigation, route}) => {
         Authorization: 'Bearer ' + store.getState().auth.token,
       });
       if (res) {
-        console.log(res.data)
         setBm(res.data.bm)
       }
     } catch (error) {
-      console.log(error, 'error');
     } finally {
       // setLoading(false);
     }
@@ -71,12 +69,10 @@ const Access: FC<Props> = ({navigation, route}) => {
         Authorization: 'Bearer ' + store.getState().auth.token,
       });
       if (res) {
-        console.log(res.data)
         await AsyncStorage.setItem('access_token', res.data.accessToken);
         await authMe(res.data.accessToken);
       }
     } catch (error) {
-      console.log(error, 'error');
       if(error.response.data.error){
         ToastAndroid.show(error.response.data.error, ToastAndroid.SHORT)
       }
@@ -92,7 +88,6 @@ const Access: FC<Props> = ({navigation, route}) => {
         Authorization: 'Bearer ' + token,
       });
       if (res) {
-        console.log(res.data);
         dispatch({type: TOKEN, token: token});
         navigation.replace('Tab', {
           screen: 'Home',
@@ -104,7 +99,6 @@ const Access: FC<Props> = ({navigation, route}) => {
         });
       }
     } catch (error) {
-      console.log(error, 'error');
     } finally {
       setLoading(false);
     }

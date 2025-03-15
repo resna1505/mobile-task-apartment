@@ -48,12 +48,10 @@ const Profile = () => {
         Authorization: 'Bearer ' + store.getState().auth.token,
       });
       if (res) {
-        console.log(res.data);
         setData(res.data)
         setPhone(res.data.phoneNumber)
       }
     } catch (error) {
-      console.log(error, 'error');
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -74,13 +72,9 @@ const Profile = () => {
         quality: 0.5,
       });
       if (res) {
-        console.log(res, 'res');
-        // setImage(res.assets[0]?.uri || '');
-        // setFile(res.assets[0]?.base64 || '');
         submit(res.assets[0]?.base64)
       }
     } catch (error) {
-      console.log(error, 'error pick image');
     }
   };
 
@@ -100,14 +94,12 @@ const Profile = () => {
         },
       );
       if (res) {
-        console.log(res.data, 'res');
         setFile('');
         setImage('');
         authMe()
         ToastAndroid.show('Change photo success', ToastAndroid.SHORT)
       }
     } catch (error) {
-      console.log(error, 'error');
     }
   };
 
@@ -130,13 +122,11 @@ const Profile = () => {
         },
       );
       if (res) {
-        console.log(res.data, 'res');
         setIsEdit(false);
         authMe()
         ToastAndroid.show('Edit profile success', ToastAndroid.SHORT)
       }
     } catch (error) {
-      console.log(error, 'error');
     }
   };
 

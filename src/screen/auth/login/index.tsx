@@ -69,7 +69,6 @@ const Login: FC<Props> = ({navigation, route}) => {
     checkLogin();
     messaging().getToken()
     .then(token => {
-      console.log(token)
       setFCMtoken(token)
     });
     const unsubscribe = messaging().onMessage(async remoteMessage => {
@@ -86,7 +85,6 @@ const Login: FC<Props> = ({navigation, route}) => {
         Authorization: 'Bearer ' + token,
       });
       if (res) {
-        console.log(res.data);
         dispatch({type: TOKEN, token: token});
         navigation.replace('Access')
         // navigation.replace('Tab', {
@@ -99,7 +97,6 @@ const Login: FC<Props> = ({navigation, route}) => {
         // });
       }
     } catch (error) {
-      console.log(error, 'error');
     } finally {
       setLoading(false);
     }
@@ -108,7 +105,6 @@ const Login: FC<Props> = ({navigation, route}) => {
   const fetchLogin = async () => {
     Keyboard.dismiss();
     const url = 'auth/mobile/login';
-    console.log(url);
     try {
       setLoading(true);
       if (email !== '' && password !== '') {
@@ -118,7 +114,6 @@ const Login: FC<Props> = ({navigation, route}) => {
           firebaseToken: tokenFCM,
         });
         if (res) {
-          console.log(res);
           await AsyncStorage.setItem('access_token', res.data.accessToken);
           await authMe(res.data.accessToken);
         }
@@ -133,7 +128,6 @@ const Login: FC<Props> = ({navigation, route}) => {
         setLoading(false);
       }
     } catch (err: any) {
-      console.log('error', {...err});
       await setTimeout(() => {
         setLoading(false);
         if (err?.response.data?.status == 401) {
