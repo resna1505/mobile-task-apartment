@@ -280,7 +280,7 @@ const Login: FC<Props> = ({navigation, route}) => {
             <Image source={GoggleIcon} style={{width: 24, height: 25, marginRight: 12}} />
             <Text style={{fontFamily: 'NunitoSans-Regular'}}>Sign in with google</Text>
           </View> */}
-          <Text style={{fontFamily: 'NunitoSans-Regular', marginTop: 10}}>v.{packageJson.version}</Text>
+          <Text style={{fontFamily: 'NunitoSans-Regular', marginTop: 10}}>V.{packageJson.version}</Text>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>

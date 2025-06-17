@@ -137,7 +137,7 @@ const Profile = () => {
       if (res) {
         setIsEdit(false);
         authMe()
-        ToastAndroid.show('Edit profile success', ToastAndroid.SHORT)
+        ToastAndroid.show('Edit Profile Success', ToastAndroid.SHORT)
       }
     } catch (error) {
       ToastAndroid.show(
