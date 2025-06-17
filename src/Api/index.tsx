@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from 'axios';
 import {store} from '../../states/store';
 
-export const baseUrl: string = 'https://dev.2024-10v001-api.incom.id/';
+export const baseUrl: string = 'https://dev.2024-10v001-api.incom.id/'; // Development
 // export const baseUrl: string = 'https://prod-api001.incom.id/'; // Production
 
 type Result = {
