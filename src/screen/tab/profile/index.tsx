@@ -33,6 +33,10 @@ const Profile = () => {
   const [file, setFile] = useState('');
   const [image, setImage] = useState('');
   const [phone, setPhone] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [address, setAddress] = useState('');
   const [isEdited, setIsEdit] = useState(false);
 
   useEffect(() => {
@@ -50,6 +54,7 @@ const Profile = () => {
       if (res) {
         setData(res.data)
         setPhone(res.data.phoneNumber)
+        setAddress(res.data.userAddress || '')
       }
     } catch (error) {
     } finally {
@@ -109,11 +114,19 @@ const Profile = () => {
 
   const changeNumberPhone = async () => {
     const url = `${baseUrl}mobile/user`;
+    if (newPassword !== confirmPassword) {
+      ToastAndroid.show('Password baru dan konfirmasi tidak cocok', ToastAndroid.SHORT);
+      return;
+    }
     try {
       const res = await axios.patch(
         url,
         {
           phoneNumber: phone,
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+          confirmPassword: confirmPassword,
+          userAddress: address
         },
         {
           headers: {
@@ -245,24 +258,6 @@ const Profile = () => {
                 <Text style={{fontFamily: 'NunitoSans-Regular', fontSize: 16}}>{data.email}</Text>
               </View>
             </View>
-{/* 
-            <View 
-              style={{
-                paddingVertical: 25,
-                borderTopWidth: 1,
-                borderBottomWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: '#BABCBE'
-              }}
-            >
-              <Text style={{fontFamily: 'NunitoSans-Bold',}}>Pendidikan Terakhir</Text>
-
-              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
-                <Icon name='phone-alt' style={{marginRight: 12}} color='#B8BCC1' size={17}/>
-                <Text style={{fontFamily: 'NunitoSans-Regular', fontSize: 16}}>812 0000 1111</Text>
-              </View>
-            </View> */}
-
             <View 
               style={{
                 paddingVertical: 25,
@@ -274,8 +269,69 @@ const Profile = () => {
             >
               <Text style={{fontFamily: 'NunitoSans-Bold',}}>Alamat</Text>
 
-              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
+              {/* <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
                 <Text style={{fontFamily: 'NunitoSans-Regular', fontSize: 16}}>{data.userAddress ?  data.userAddress : '-'}</Text>
+              </View> */}
+              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
+                <Icon name='map-marker-alt' style={{marginRight: 12}} color='#B8BCC1' size={17} />
+                <TextInput
+                  value={address}
+                  style={{padding: 0, flex: 1, color: '#000'}}
+                  onChangeText={(text) => setAddress(text)}
+                  editable={isEdited}
+                  // placeholder="Alamat"
+                />
+              </View>
+            </View>
+
+            <View
+              style={{
+                paddingVertical: 25,
+                borderTopWidth: 1,
+                borderBottomWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: '#BABCBE',
+              }}
+            >
+              <Text style={{fontFamily: 'NunitoSans-Bold'}}>Ganti Password</Text>
+
+              {/* Old Password */}
+              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
+                <Icon name='lock' style={{marginRight: 12}} color='#B8BCC1' size={17} />
+                <TextInput
+                  value={oldPassword}
+                  onChangeText={setOldPassword}
+                  placeholder="Password Lama"
+                  secureTextEntry={true}
+                  editable={isEdited}
+                  style={{padding: 0, flex: 1, color: '#000'}}
+                />
+              </View>
+
+              {/* New Password */}
+              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
+                <Icon name='lock' style={{marginRight: 12}} color='#B8BCC1' size={17} />
+                <TextInput
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  placeholder="Password Baru"
+                  secureTextEntry={true}
+                  editable={isEdited}
+                  style={{padding: 0, flex: 1, color: '#000'}}
+                />
+              </View>
+
+              {/* Confirm Password */}
+              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 14}}>
+                <Icon name='lock' style={{marginRight: 12}} color='#B8BCC1' size={17} />
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder="Konfirmasi Password"
+                  secureTextEntry={true}
+                  editable={isEdited}
+                  style={{padding: 0, flex: 1, color: '#000'}}
+                />
               </View>
             </View>
 

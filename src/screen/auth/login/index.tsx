@@ -249,14 +249,14 @@ const Login: FC<Props> = ({navigation, route}) => {
             Title="Sign in"
             onPress={() => fetchLogin()}
           />
-          <ButtonText
+          {/* <ButtonText
             onPress={() => navigation.navigate(Stacks.ForgotPassword)}
-          />
+          /> */}
           {/* <View style={{flexDirection: 'row', borderRadius: 5, width: '90%', borderWidth: 1, borderColor: '#cccccc', marginBottom: 20, justifyContent: 'center', alignItems: 'center', height: 48, alignSelf: 'center'}}>
             <Image source={GoggleIcon} style={{width: 24, height: 25, marginRight: 12}} />
             <Text style={{fontFamily: 'NunitoSans-Regular'}}>Sign in with google</Text>
           </View> */}
-          <Text style={{fontFamily: 'NunitoSans-Regular'}}>v.1.6.48</Text>
+          <Text style={{fontFamily: 'NunitoSans-Regular', marginTop: 10}}>v.1.6.48</Text>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>

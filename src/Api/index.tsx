@@ -1,14 +1,8 @@
 import axios, {AxiosResponse} from 'axios';
 import {store} from '../../states/store';
 
-// export const baseUrl: string = 'https://incom-api-dev001.incom.id/';
-// export const baseUrl: string = 'https://springhill-api.infinitec.id/';
-// export const baseUrl: string = 'https://prod-api001.incom.id/';
-// export const baseUrl: string = 'https://microservices.174nd.xyz/';
-// export const baseUrl: string = 'https://service.174nd.xyz/';
-// dev
-// export const baseUrl: string = 'https://dev.2024-10v001-api.incom.id/';
-export const baseUrl: string = 'https://prod-api001.incom.id/'; // Production
+export const baseUrl: string = 'https://dev.2024-10v001-api.incom.id/';
+// export const baseUrl: string = 'https://prod-api001.incom.id/'; // Production
 
 type Result = {
   data: any;
