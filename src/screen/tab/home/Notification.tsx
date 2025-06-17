@@ -19,31 +19,60 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Stacks } from '../../../../route/shared';
 import axios from 'axios';
 import { store } from '../../../../states/store';
+import io from 'socket.io-client';
 
 // Config
 const imageMain = require('../../../../assets/image/ImageMain.png');
 
 const deviceWidth = Dimensions.get('window').width;
+const socket = io(baseUrl+'/work', {
+  transports: ['websocket'],
+});
 
 const Notification: FC<Props> = ({route}: any) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    getData();
-  }, []);
+  // useEffect(() => {
+  //   getData();
+  // }, []);
+
+  // const getData = async () => {
+  //   const url = 'notification/mobile';
+  //   setLoading(true);
+  //   try {
+  //     const res = await request.get(url);
+  //     setData(res.data.data.reverse())
+  //   } catch (err: any) {
+     
+  //   }
+  // };
 
   const getData = async () => {
-    const url = 'notification/mobile';
     setLoading(true);
     try {
-      const res = await request.get(url);
-      setData(res.data.data.reverse())
-    } catch (err: any) {
-     
+      const res = await request.get('notification/mobile');
+      
+      setData(res.data.data.reverse());
+    } catch (err) {
+      console.error(err);
     }
+    setLoading(false);
   };
+
+  useEffect(() => {    
+    getData();
+    socket.on('domain-1-work-added', () => {
+      console.log('resna test');
+      
+      getData();
+    });
+
+    return () => {
+      socket.off('domain-1-work-added');
+    };
+  }, []);
 
   const readNotif = async (val: any, type: any) => {
     const url = `${baseUrl}mobile/notification/${val.id}/read`;
@@ -95,7 +124,9 @@ const Notification: FC<Props> = ({route}: any) => {
       </View>
      <ScrollView showsVerticalScrollIndicator={false}>
         {data.map(value => (
-          <TouchableOpacity style={{
+          <TouchableOpacity
+            key={value.id}
+            style={{
               borderBottomWidth: 0.5, 
               borderBottomColor: '#c4c4c4', 
               paddingHorizontal: 24, 

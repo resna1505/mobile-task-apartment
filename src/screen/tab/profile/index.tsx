@@ -113,7 +113,7 @@ const Profile = () => {
   }
 
   const changeNumberPhone = async () => {
-    const url = `${baseUrl}mobile/user`;
+    const url = `${baseUrl}mobile/user`;    
     if (newPassword !== confirmPassword) {
       ToastAndroid.show('Password baru dan konfirmasi tidak cocok', ToastAndroid.SHORT);
       return;
@@ -140,6 +140,10 @@ const Profile = () => {
         ToastAndroid.show('Edit profile success', ToastAndroid.SHORT)
       }
     } catch (error) {
+      ToastAndroid.show(
+        error.response?.data?.error || 'Gagal update data',
+        ToastAndroid.SHORT
+      );
     }
   };
 

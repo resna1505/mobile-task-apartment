@@ -66,18 +66,41 @@ const Login: FC<Props> = ({navigation, route}) => {
     }
   };
 
+  // useEffect(() => {
+  //   checkLogin();
+  //   messaging().getToken()
+  //   .then(token => {
+  //     setFCMtoken(token)
+  //   });
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     ToastAndroid.show('A new FCM message arrived!', JSON.stringify(remoteMessage), ToastAndroid.SHORT);
+  //   });
+
+  //   return unsubscribe;
+  // }, []);
+  
   useEffect(() => {
-    checkLogin();
-    messaging().getToken()
+  let isMounted = true;
+
+  checkLogin();
+
+  messaging().getToken()
     .then(token => {
-      setFCMtoken(token)
-    });
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      ToastAndroid.show('A new FCM message arrived!', JSON.stringify(remoteMessage), ToastAndroid.SHORT);
+      if (isMounted) {
+        setFCMtoken(token);
+      }
     });
 
-    return unsubscribe;
-  }, []);
+  const unsubscribe = messaging().onMessage(async remoteMessage => {
+    ToastAndroid.show('A new FCM message arrived!', ToastAndroid.SHORT);
+  });
+
+  return () => {
+    isMounted = false;
+    unsubscribe();
+  };
+}, []);
+
 
   const authMe = async (token) => {
     const url = 'auth/mobile/me';

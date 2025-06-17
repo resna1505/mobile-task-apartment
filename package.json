@@ -8,6 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
+    "apk_release": "cd android && ./gradlew assembleRelease",
     "release_windows": "cd android && gradlew assembleRelease && cd ..",
     "release_android": "react-native run-android --variant=release",
     "gradlew_clean": "cd android && gradlew clean && cd ..",
@@ -57,7 +58,8 @@
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1",
-    "rn-sliding-up-panel": "^2.4.5"
+    "rn-sliding-up-panel": "^2.4.5",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
