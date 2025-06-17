@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
 } from 'react-native';
+import packageJson from '../../../../package.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { useDispatch, useSelector } from 'react-redux';
 
@@ -256,7 +257,7 @@ const Login: FC<Props> = ({navigation, route}) => {
             <Image source={GoggleIcon} style={{width: 24, height: 25, marginRight: 12}} />
             <Text style={{fontFamily: 'NunitoSans-Regular'}}>Sign in with google</Text>
           </View> */}
-          <Text style={{fontFamily: 'NunitoSans-Regular', marginTop: 10}}>v.1.6.48</Text>
+          <Text style={{fontFamily: 'NunitoSans-Regular', marginTop: 10}}>v.{packageJson.version}</Text>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>

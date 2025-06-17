@@ -1,0 +1,33 @@
+name: Auto Version Bump
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+    - name: Bump version
+      run: |
+        npm version patch --no-git-tag-version
+        
+    - name: Commit version bump
+      run: |
+        git add package.json
+        git commit -m "Auto version bump [skip ci]"
+        git push
