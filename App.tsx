@@ -37,8 +37,7 @@ export default codePush(App);
 // import { store } from './states/store';
 // import { Stacks } from './route/shared';
 // import { request } from './src/Api';
-// import CustomNotificationBanner from './src/components/CustomNotificationBanner';
-// // import CustomNotificationBanner from './components/CustomNotificationBanner'; // Add this import
+// import CustomNotificationBanner from './src/components/CustomNotificationBanner'; // Add this import
 
 // const App: FC = () => {
 //   const navigationRef = useRef<NavigationContainerRef<any>>(null);
@@ -62,16 +61,16 @@ export default codePush(App);
           
 //           for (const status of statuses) {
 //             try {
-//               const response = await request.get(mobile/work/${data.workId}/${status});
+//               const response = await request.get(`mobile/work/${data.workId}/${status}`);
 //               const tasks = response.data.data;
               
 //               if (tasks && tasks.length > 0) {
 //                 latestTask = tasks[0]; // Get first task from any status
-//                 console.log(Found task in ${status}:, latestTask.id);
+//                 console.log(`Found task in ${status}:`, latestTask.id);
 //                 break; // Exit loop when task found
 //               }
 //             } catch (statusError) {
-//               console.log(No tasks found in ${status});
+//               console.log(`No tasks found in ${status}`);
 //               continue; // Try next status
 //             }
 //           }
@@ -95,7 +94,7 @@ export default codePush(App);
 //           try {
 //             navigationRef.current.navigate(Stacks.List, {
 //               id: data.workId,
-//               name: data.workName,
+//               name: data.workName, // You can get actual work name from API if needed
 //               fromFCM: true,
 //             });
             
@@ -134,16 +133,16 @@ export default codePush(App);
             
 //             for (const status of statuses) {
 //               try {
-//                 const response = await request.get(mobile/work/${data.workId}/${status});
+//                 const response = await request.get(`mobile/work/${data.workId}/${status}`);
 //                 const tasks = response.data.data;
                 
 //                 if (tasks && tasks.length > 0) {
 //                   latestTask = tasks[0]; // Get first task from any status
-//                   console.log(Found task in ${status}:, latestTask.id);
+//                   console.log(`Found task in ${status}:`, latestTask.id);
 //                   break; // Exit loop when task found
 //                 }
 //               } catch (statusError) {
-//                 console.log(No tasks found in ${status});
+//                 console.log(`No tasks found in ${status}`);
 //                 continue; // Try next status
 //               }
 //             }
@@ -167,7 +166,7 @@ export default codePush(App);
 //             try {
 //               navigationRef.current.navigate(Stacks.List, {
 //                 id: data.workId,
-//                 name: data.workName,
+//                 name: data.workName, // You can get actual work name from API if needed
 //                 fromFCM: true,
 //               });
               
@@ -248,7 +247,8 @@ export default codePush(App);
 //   return (
 //     <Provider store={store}>
 //       <NavigationContainer ref={navigationRef}>
-//         <Navigator />        
+//         <Navigator />
+        
 //         {/* Custom Notification Banner for Foreground */}
 //         <CustomNotificationBanner
 //           notification={foregroundNotification}
