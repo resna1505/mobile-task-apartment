@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {request} from '../../../Api';
+import {baseUrl, request} from '../../../Api';
 import  {store} from '../../../../states/store'
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 
@@ -124,9 +124,10 @@ const Access: FC<Props> = ({navigation, route}) => {
             onPress={() => sumbitAccess(value.domain.id)}
           >
             {value.domain.domainLogo ? 
-              <Image source={{uri: `https://incom-api.dev001.incom.id/domain/files/${value.domain.domainLogo}`}} style={AccessStyle.ImageCard}/>
+            
+              <Image source={{uri: `${baseUrl}domain/files/${value.domain.domainLogo}`}} style={AccessStyle.ImageCard}/>
               :
-              <Image source={{uri: `https://incom-api.dev001.incom.id/image/domainGroupDefault.png`}} style={AccessStyle.ImageCard}/>
+              <Image source={{uri: `${baseUrl}image/domainGroupDefault.png`}} style={AccessStyle.ImageCard}/>
             }
             <View style={{flex: 1}}>
               <Text style={{fontFamily: 'NunitoSans-Bold', fontSize: 15}}>{value.domain.domainName}</Text>

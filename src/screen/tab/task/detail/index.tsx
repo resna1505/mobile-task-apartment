@@ -14,6 +14,7 @@ import {
   ToastAndroid,
   PermissionsAndroid,
   Modal,
+  Platform,
 } from 'react-native';
 
 import React, {FC, useCallback, useMemo, useState, useEffect} from 'react';
@@ -281,7 +282,7 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   const changeChecked = async (item: any, val: any) => {
     setLoading(true);
     const url = `${baseUrl}subTask/changeStatus/${item.id}`;
-    setLoad(!load);
+    
     try {
       const res = await axios.patch(
         url,
@@ -294,11 +295,14 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
           },
         },
       );
+      
       if (res) {
-        setLoading(false);
-        setLoad(!load);
+        await getData();
       }
     } catch (error) {
+      console.log('Error updating checkbox:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -925,60 +929,7 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
               flexDirection: 'row',
               justifyContent: 'flex-start',
               bottom: 5,
-              // backgroundColor: 'red',
             }}>
-            {/* <View style={{flexDirection: 'row'}}>
-              {data.detail.workers.length > 0 && (
-                <Image
-                  source={{
-                    uri: `${baseUrl}files/${data.detail.workers[0].profileImage}`,
-                  }}
-                  style={{
-                    height: 24,
-                    width: 24,
-                    zIndex: _panel ? 0 : 10,
-                    borderRadius: 100,
-                  }}
-                />
-              )}
-              {data.detail.workers.length > 1 && (
-                <Image
-                  source={{
-                    uri: `${baseUrl}files/${data.detail.workers[1].profileImage}`,
-                  }}
-                  style={{
-                    height: 24,
-                    width: 24,
-                    zIndex: _panel ? 0 : 10,
-                    borderRadius: 100,
-                  }}
-                />
-              )}
-              {data.detail.workers.length > 2 && (
-                <Image
-                  source={{
-                    uri: `${baseUrl}files/${data.detail.workers[2].profileImage}`,
-                  }}
-                  style={{
-                    height: 24,
-                    width: 24,
-                    zIndex: _panel ? 0 : 10,
-                    borderRadius: 100,
-                  }}
-                />
-              )}
-            </View> */}
-            {/* {data.detail.workers.length > 1 && (
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'NunitoSans-Regular',
-                  color: '#000',
-                  paddingLeft: 10,
-                }}>
-                and {data.detail.workers.length - 3} others
-              </Text>
-            )} */}
           </View>
         </View>
       </View>
@@ -1056,6 +1007,7 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
             )}
             <ScrollView
               showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 width: '100%',
                 height:
@@ -1077,95 +1029,100 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 ? Discussion(data.detail.discussions)
                 : Files(data.detail.files)}
             </ScrollView>
-            <KeyboardAvoidingView
-              behavior="padding"
-              keyboardVerticalOffset={20}
-              style={{backgroundColor: '#FFF', marginBottom: 0}}>
-              {tabId == 1 ? (
-                <>
-                  <View
-                    style={{
-                      height: 60,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderTopWidth: 1,
-                      borderStartWidth: 1,
-                      borderEndWidth: 1,
-                      borderTopRightRadius: 5,
-                      borderTopLeftRadius: 5,
-                      backgroundColor: '#FFF',
-                      borderColor: '#DEE2E6',
-                      bottom: 10,
-                      marginBottom: 60,
-                      position: 'relative',
-                      alignItems: 'center',
-                    }}>
-                    <TextInput
-                      onChangeText={(text: any) => setComment(text)}
-                      placeholderTextColor="#CED4DA"
-                      style={{
-                        paddingLeft: 10,
-                        flex: 1,
-                        color: '#10180F',
-                        fontFamily: 'NunitoSans-Regular',
-                        fontSize: 14,
-                      }}
-                      value={Comment}
-                      selectionColor={'#1B7472'}
-                      placeholder="Comment here"
-                    />
-                    <TouchableOpacity
-                      onPress={() => submit()}
-                      style={{height: 30, width: 30, marginTop: 5}}>
-                      <MaterialIcon name="send" size={22} color={'#ADB5BD'} />
-                    </TouchableOpacity>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        borderRadius: 5,
-                        alignItems: 'center',
-                        paddingHorizontal: 5,
-                      }}>
-                      <View
-                        style={{
-                          height: 25,
-                          borderLeftWidth: 1,
-                          borderLeftColor: '#ADB5BD',
-                        }}
-                      />
-                      <TouchableOpacity
-                        style={{marginHorizontal: 10}}
-                        onPress={chooseAction}>
-                        {image !== '' ? (
-                          <Image
-                            source={{uri: image}}
-                            style={{width: 22, height: 22}}
-                          />
-                        ) : (
-                          <MaterialIcon
-                            name="attach-file"
-                            size={22}
-                            color="#ADB5BD"
-                          />
-                        )}
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        onPress={() => {
-                          setImage('');
-                          setFile('');
-                        }}>
-                        <MaterialIcon name="cancel" size={22} color="#ADB5BD" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </>
-              ) : null}
-            </KeyboardAvoidingView>
+              
           </View>
         )}
       </SlidingUpPanel>
+        {tabId == 1 ? (
+          <>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 120} // Sesuaikan offset
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: '#FFF'
+              }}
+            >
+              <View
+                style={{
+                  height: 60,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderTopWidth: 1,
+                  borderStartWidth: 1,
+                  borderEndWidth: 1,
+                  borderTopRightRadius: 5,
+                  borderTopLeftRadius: 5,
+                  backgroundColor: '#FFF',
+                  borderColor: '#DEE2E6',
+                  paddingHorizontal: 10,
+                }}>
+                <TextInput
+                  onChangeText={(text: any) => setComment(text)}
+                  placeholderTextColor="#CED4DA"
+                  style={{
+                    paddingLeft: 10,
+                    flex: 1,
+                    color: '#10180F',
+                    fontFamily: 'NunitoSans-Regular',
+                    fontSize: 14,
+                  }}
+                  value={Comment}
+                  selectionColor={'#1B7472'}
+                  placeholder="Comment here"
+                />
+                <TouchableOpacity
+                  onPress={() => submit()}
+                  style={{height: 30, width: 30, marginTop: 5}}>
+                  <MaterialIcon name="send" size={22} color={'#ADB5BD'} />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    borderRadius: 5,
+                    alignItems: 'center',
+                    paddingHorizontal: 5,
+                  }}>
+                  <View
+                    style={{
+                      height: 25,
+                      borderLeftWidth: 1,
+                      borderLeftColor: '#ADB5BD',
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={{marginHorizontal: 10}}
+                    onPress={chooseAction}>
+                    {image !== '' ? (
+                      <Image
+                        source={{uri: image}}
+                        style={{width: 22, height: 22}}
+                      />
+                    ) : (
+                      <MaterialIcon
+                        name="attach-file"
+                        size={22}
+                        color="#ADB5BD"
+                      />
+                    )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setImage('');
+                      setFile('');
+                    }}>
+                    <MaterialIcon name="cancel" size={22} color="#ADB5BD" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          </>
+      ) : null}
       <Modal animationType="none" transparent={true} visible={modalVisible}>
         <View style={{flex: 1, backgroundColor: '#FFF'}}>
           <TouchableOpacity
