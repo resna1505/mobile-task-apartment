@@ -17,7 +17,7 @@ import {
   Platform,
 } from 'react-native';
 
-import React, {FC, useCallback, useMemo, useState, useEffect} from 'react';
+import React, {FC, useCallback, useMemo, useState, useEffect, useRef} from 'react';
 import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import StopWatch from 'react-native-vector-icons/Fontisto';
@@ -26,15 +26,12 @@ import {useIsFocused} from '@react-navigation/core';
 import CheckBox from '@react-native-community/checkbox';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import SelectDropdown from 'react-native-select-dropdown';
-import {
-  Directions,
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
+// Import untuk zoom image yang lebih simple
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 import {RootStackParamList, Stacks} from '../../../../../route/shared';
 import {useSwipe} from '../../../../components/useSwipe';
-import {log, useSharedValue, withTiming} from 'react-native-reanimated';
+import {log, useSharedValue, withTiming, runOnJS} from 'react-native-reanimated';
 import {baseUrl, request} from '../../../../Api';
 import Loading from '../../../../components/loading';
 import moment from 'moment';
@@ -42,7 +39,6 @@ import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import {store} from '../../../../../states/store';
 import RNFS from 'react-native-fs';
 import axios from 'axios';
-// import RNFetchBlob from 'react-native-fetch-blob';
 import RNFetchBlob from 'react-native-blob-util';
 import RenderHtml from 'react-native-render-html';
 
@@ -67,8 +63,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   const [data, setData] = useState<any>(undefined);
   const {id} = route.params;
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [viewImage, setViewImage] = useState('');
   const [visibleCamera, setVisibleCamera] = useState(false);
   const [slide, setSlide] = useState(false);
   const [checked, setChecked] = useState<any>([
@@ -120,14 +114,30 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   const [Comment, setComment] = useState('');
   const [file, setFile] = useState('');
   const [image, setImage] = useState('');
+  
+  // State untuk zoom image - menggunakan ImageViewer
+  const [modalVisible, setModalVisible] = useState(false);
+  const [viewImage, setViewImage] = useState('');
+  const [imageIndex, setImageIndex] = useState(0);
+  const [images, setImages] = useState([]);
 
   const showImage = (url: any) => {
-    setModalVisible(!modalVisible);
-    setViewImage(url);
+    // Setup image untuk ImageViewer
+    const imageObj = [{
+      url: url,
+      width: deviceWidth,
+      height: 300,
+    }];
+    setImages(imageObj);
+    setImageIndex(0);
+    setModalVisible(true);
   };
 
   const getData = async () => {
     const url = 'mobile/task/' + id;
+      
+    console.log('resna',url);
+    
     try {
       const res = await request.get(url);
       if (res) {
@@ -180,10 +190,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
       id: 2,
       label: 'Resolved',
     },
-    // {
-    //   id: 3,
-    //   label: 'Done',
-    // },
   ];
 
   const switchTab = (id: number) => {
@@ -197,11 +203,8 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   const download = (item: any) => {
     RNFetchBlob.config({
       addAndroidDownloads: {
-        useDownloadManager: true, // <-- this is the only thing required
-        // Optional, override notification setting (default to true)
+        useDownloadManager: true,
         notification: false,
-        // Optional, but recommended since android DownloadManager will fail when
-        // the url does not contains a file extension, by default the mime type will be text/plain
         description: 'File downloaded by download manager.',
         indicator: true,
         path: `${RNFS.ExternalStorageDirectoryPath}/Download/${item.taskFileSource}`,
@@ -210,36 +213,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
       .fetch('GET', `${baseUrl}taskFile/files/download/${item.taskFileSource}`)
       .then((res) => {});
   };
-
-  // const download = async (item: any) => {
-  //   const url = `${baseUrl}taskFile/files/download/${item.taskFileSource}`;
-  //   const path = RNFS.DownloadDirectoryPath +`/springhill/`;
-  //   await RNFS.mkdir(path)
-  //     .then(() => {
-  //       const downloads = RNFS.downloadFile({
-  //         fromUrl: url,
-  //         toFile: RNFS.DownloadDirectoryPath +`/springhill/${item.taskFileSource}`,
-  //         progressDivider: 5,
-  //         background: true,
-  //         discretionary: true,
-  //         progress: (res) => {
-  //         },
-  //       });
-  //       downloads.promise
-  //         .then((res) => {
-  //           if (res.statusCode === 200) {
-  //             ToastAndroid.show('File Downloaded', ToastAndroid.LONG);
-  //           } else {
-  //             ToastAndroid.show(
-  //               'Download Failed, Try Again',
-  //               ToastAndroid.LONG,
-  //             );
-  //           }
-  //         })
-  //     })
-  //     .catch((err) => {
-  //     });
-  // };
 
   const chooseAction = () => {
     setVisibleCamera(!visibleCamera);
@@ -351,9 +324,12 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
     }
   };
 
+  // Handle pinch gesture untuk zoom - tidak diperlukan lagi karena pakai ImageViewer
+
   const Tab = (data: any) => {
     return data.map((items: any, id: number) => (
       <TouchableOpacity
+        key={id}
         onPress={() => switchTab(id)}
         style={{
           width: deviceWidth / 3,
@@ -386,178 +362,11 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
     }
     return data
       .sort((a, b) => a.id - b.id)
-      .map((items: any) => (
-        <>
-          {/* Card  */}
-          {/* <View style={{backgroundColor: 'red', height: undefined}}> */}
-          <View
-            style={{
-              height: 124,
-              width: 351,
-              justifyContent: 'center',
-              backgroundColor: '#FFF',
-              borderRadius: 10,
-              paddingHorizontal: 15,
-              marginBottom: 10,
-              elevation: 1,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'NunitoSans-Bold',
-                  color: '#555',
-                }}>
-                {items.subTaskName}
-              </Text>
-              <CheckBox
-                // disabled={false}
-                tintColors={{true: '#52B788', false: 'rgba(0, 0, 0, 0.5)'}}
-                value={items.subTaskStatus}
-                onValueChange={(val) => changeChecked(items, val)}
-              />
-            </View>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#CED4DA',
-                width: '100%',
-                alignSelf: 'center',
-                marginBottom: 14,
-              }}
-            />
-            <View style={{flexDirection: 'row'}}>
-              {/* <Image
-                source={items.photo}
-                style={{
-                  height: 24,
-                  width: 24,
-                  borderRadius: 100,
-                }}
-              /> */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'NunitoSans-Regular',
-                  color: '#555',
-                }}>
-                Assigned to {items.subTaskWorkers[0].user?.firstName}
-                <Text
-                  style={{
-                    fontFamily: 'NunitoSans-Bold',
-                  }}>
-                  {items.assignee}
-                </Text>
-              </Text>
-            </View>
-          </View>
-          {/* </View> */}
-        </>
-      ));
-  };
-
-  const Discussion = (data: any) => {
-    if (data.length === 0) {
-      return (
-        <View>
-          <Text>Data Kosong</Text>
-        </View>
-      );
-    }
-    return data.map((items: any) => (
-      <>
-        {/* Card  */}
+      .map((items: any, index: number) => (
         <View
+          key={index}
           style={{
-            width: '90%',
-            justifyContent: 'space-between',
-            backgroundColor: '#FFF',
-            borderRadius: 10,
-            paddingHorizontal: 15,
-            marginBottom: 10,
-            elevation: 1,
-            paddingVertical: 20,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}>
-          <View style={{flex: 1, paddingRight: 8}}>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{fontSize: 12, fontFamily: 'NunitoSans-Bold'}}>
-                {items.user.firstName} {items.user.lastName},{' '}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'NunitoSans-Regular',
-                  color: '#555',
-                }}>
-                {moment(items.taskDiscussionTime).format('DD MMM HH:mm')}
-              </Text>
-            </View>
-            <RenderHtml
-              contentWidth={100}
-              source={{
-                html: `${items.taskDiscussionContent}`,
-              }}
-            />
-            {/* <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'NunitoSans-Regular',
-                color: '#555',
-              }}>
-              {items.taskDiscussionContent}
-            </Text> */}
-          </View>
-          {items.taskDiscussionAttachment ? (
-            <TouchableOpacity
-              onPress={() =>
-                showImage(
-                  `${baseUrl}taskDiscussion/files/${items.taskDiscussionAttachment}`,
-                )
-              }>
-              <Image
-                source={{
-                  uri: `${baseUrl}taskDiscussion/files/${items.taskDiscussionAttachment}`,
-                }}
-                style={{
-                  height: 50,
-                  width: 50,
-                  marginTop: 10,
-                  borderRadius: 8,
-                }}
-              />
-            </TouchableOpacity>
-          ) : (
-            <></>
-          )}
-        </View>
-      </>
-    ));
-  };
-
-  const Files = (data: any) => {
-    if (data.length === 0) {
-      return (
-        <View>
-          <Text>Data Kosong</Text>
-        </View>
-      );
-    }
-    return data.map((items: any) => (
-      <>
-        {/* Card  */}
-        <TouchableOpacity
-          onPress={() =>
-            showImage(`${baseUrl}taskFile/files/${items.taskFileSource}`)
-          }
-          style={{
-            height: 65,
+            height: 124,
             width: 351,
             justifyContent: 'center',
             backgroundColor: '#FFF',
@@ -570,41 +379,204 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'flex-start',
+              justifyContent: 'space-between',
             }}>
-            <MaterialCommunity
-              name="folder-outline"
-              size={20}
-              color="#ADB5BD"
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'NunitoSans-Bold',
+                color: '#555',
+              }}>
+              {items.subTaskName}
+            </Text>
+            <CheckBox
+              tintColors={{true: '#52B788', false: 'rgba(0, 0, 0, 0.5)'}}
+              value={items.subTaskStatus}
+              onValueChange={(val) => changeChecked(items, val)}
             />
-            <View style={{marginLeft: 10, width: deviceWidth / 1.5}}>
+          </View>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: '#CED4DA',
+              width: '100%',
+              alignSelf: 'center',
+              marginBottom: 14,
+            }}
+          />
+          <View style={{flexDirection: 'row'}}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'NunitoSans-Regular',
+                color: '#555',
+              }}>
+              Assigned to {items.subTaskWorkers[0]?.user?.firstName}
               <Text
                 style={{
-                  fontSize: 12,
                   fontFamily: 'NunitoSans-Bold',
                 }}>
-                {items.taskFileName}{' '}
+                {items.assignee}
               </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'NunitoSans-Regular',
-                  color: '#555',
-                }}>
-                {items.taskFileSize} kb
-              </Text>
-            </View>
-            <View style={{width: '10%'}}>
-              <MaterialCommunity
-                name="download-outline"
-                size={20}
-                color="#ADB5BD"
-                onPress={() => download(items)}
-              />
-            </View>
+            </Text>
           </View>
-        </TouchableOpacity>
-      </>
+        </View>
+      ));
+  };
+
+  const Discussion = (data: any) => {
+    if (data.length === 0) {
+      return (
+        <View style={{padding: 20, alignItems: 'center'}}>
+          <Text style={{color: '#ADB5BD', fontFamily: 'NunitoSans-Regular'}}>Data Kosong</Text>
+        </View>
+      );
+    }
+    return data.map((items: any, index: number) => (
+      <View
+        key={index}
+        style={{
+          width: '90%',
+          justifyContent: 'space-between',
+          backgroundColor: '#FFF',
+          borderRadius: 10,
+          paddingHorizontal: 15,
+          marginBottom: 10,
+          elevation: 1,
+          paddingVertical: 20,
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+        }}>
+        <View style={{flex: 1, paddingRight: 8}}>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={{fontSize: 12, fontFamily: 'NunitoSans-Bold'}}>
+              {items.user.firstName} {items.user.lastName},{' '}
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: 'NunitoSans-Regular',
+                color: '#555',
+              }}>
+              {moment(items.taskDiscussionTime).format('DD MMM HH:mm')}
+            </Text>
+          </View>
+          <RenderHtml
+            contentWidth={deviceWidth - 100}
+            source={{
+              html: `${items.taskDiscussionContent}`,
+            }}
+          />
+        </View>
+        {items.taskDiscussionAttachment ? (
+          <TouchableOpacity
+            onPress={() =>
+              showImage(
+                `${baseUrl}taskDiscussion/files/${items.taskDiscussionAttachment}`,
+              )
+            }>
+            <Image
+              source={{
+                uri: `${baseUrl}taskDiscussion/files/${items.taskDiscussionAttachment}`,
+              }}
+              style={{
+                height: 50,
+                width: 50,
+                marginTop: 10,
+                borderRadius: 8,
+              }}
+            />
+            {/* Indikator bahwa foto bisa di-zoom */}
+            <View style={{
+              position: 'absolute',
+              top: 12,
+              right: 2,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              borderRadius: 10,
+              padding: 2,
+            }}>
+              <MaterialCommunity name="magnify-plus" size={12} color="#FFF" />
+            </View>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    ));
+  };
+
+  const Files = (data: any) => {
+    if (data.length === 0) {
+      return (
+        <View>
+          <Text>Data Kosong</Text>
+        </View>
+      );
+    }
+    return data.map((items: any, index: number) => (
+      <TouchableOpacity
+        key={index}
+        onPress={() =>
+          showImage(`${baseUrl}taskFile/files/${items.taskFileSource}`)
+        }
+        style={{
+          height: 65,
+          width: 351,
+          justifyContent: 'center',
+          backgroundColor: '#FFF',
+          borderRadius: 10,
+          paddingHorizontal: 15,
+          marginBottom: 10,
+          elevation: 1,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+          }}>
+          <MaterialCommunity
+            name="folder-outline"
+            size={20}
+            color="#ADB5BD"
+          />
+          <View style={{marginLeft: 10, width: deviceWidth / 1.5}}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: 'NunitoSans-Bold',
+              }}>
+              {items.taskFileName}{' '}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'NunitoSans-Regular',
+                color: '#555',
+              }}>
+              {items.taskFileSize} kb
+            </Text>
+          </View>
+          <View style={{width: '10%', flexDirection: 'row', alignItems: 'center'}}>
+            {/* Indikator zoom untuk file gambar */}
+            {(items.taskFileName?.toLowerCase().includes('.jpg') || 
+              items.taskFileName?.toLowerCase().includes('.jpeg') || 
+              items.taskFileName?.toLowerCase().includes('.png') || 
+              items.taskFileName?.toLowerCase().includes('.gif')) && (
+              <MaterialCommunity
+                name="magnify-plus"
+                size={16}
+                color="#ADB5BD"
+                style={{marginRight: 8}}
+              />
+            )}
+            <MaterialCommunity
+              name="download-outline"
+              size={20}
+              color="#ADB5BD"
+              onPress={() => download(items)}
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
     ));
   };
 
@@ -631,12 +603,12 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
   if (data === undefined) {
     return <Loading />;
   }
+
   return (
     <SafeAreaView style={{height: deviceHeight, backgroundColor: '#FFF'}}>
       {loading && <Loading />}
       <FocusAwareStatusBar />
-      {/* Header */}
-
+      
       <View style={{height: !panel ? deviceHeight / 0.7 : deviceHeight}}>
         <View
           style={{
@@ -685,8 +657,7 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
             />
           </View>
         </View>
-        {/* Title Components */}
-        {/* <View style={{height: deviceHeight/ 3 - 80}}> */}
+
         <View style={{paddingHorizontal: 21}}>
           <Text style={{fontFamily: 'NunitoSans-Bold', fontSize: 24}}>
             {data.taskName}
@@ -701,7 +672,7 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
             }}
           />
         </View>
-        {/* Content */}
+
         <View style={{paddingHorizontal: 21}}>
           <View style={{marginTop: 24}}>
             <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
@@ -714,15 +685,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 }}>
                 Status
               </Text>
-              {/* <Text
-                style={{
-                  width: '45%',
-                  fontFamily: 'NunitoSans-Bold',
-                  fontSize: 14,
-                  color: '#ADB5BD',
-                }}>
-                Priority
-              </Text> */}
             </View>
             <View
               style={{
@@ -751,8 +713,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                     );
                   }}
                   buttonTextAfterSelection={(selectedItem, index) => {
-                    // text represented after item is selected
-                    // if data array is an array of objects then return selectedItem.property to render after item is selected
                     return selectedItem.label;
                   }}
                   buttonStyle={{
@@ -789,8 +749,9 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 justifyContent: 'flex-start',
               }}>
               {data?.detail.tags.length > 0 &&
-                data?.detail.tags.map((item) => (
+                data?.detail.tags.map((item, index) => (
                   <View
+                    key={index}
                     style={{
                       backgroundColor: item.taskTagColor,
                       borderRadius: 50,
@@ -814,7 +775,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
             </View>
           </View>
         </View>
-        {/* </View> */}
 
         <View style={{marginTop: 36, paddingHorizontal: 21}}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -826,11 +786,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
               }}>
               Description
             </Text>
-            {/* <MaterialCommunity
-              name="pencil-outline"
-              size={20}
-              color="#ADB5BD"
-            /> */}
           </View>
           <Text
             style={{
@@ -933,13 +888,13 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
           </View>
         </View>
       </View>
-      {/* Footer */}
+
+      {/* Footer dengan SlidingUpPanel */}
       <SlidingUpPanel
         ref={(c) => (_panel = c)}
         draggableRange={{top: height - topBarHeight, bottom: halfScreen}}
         showBackdrop={false}
         containerStyle={{backgroundColor: '#F2F6F8'}}
-        // allowDragging={false}
       >
         {(dragHandler) => (
           <View style={{flex: 1}}>
@@ -951,7 +906,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 size={25}
                 color="#CED4DA"
                 style={{bottom: -1}}
-                // onPress={() => onSlide()}
               />
             </View>
             <View
@@ -973,7 +927,6 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 <Text
                   style={{
                     marginVertical: 20,
-                    // marginBottom: 20,
                     fontSize: 16,
                     fontFamily: 'NunitoSans-Regular',
                     color: '#6C757D',
@@ -1005,23 +958,22 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 </Text>
               </View>
             )}
+            
+            {/* ScrollView untuk konten tab - PERBAIKAN UTAMA */}
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              style={{
+                flex: 1, // Tambahkan flex: 1
+                backgroundColor: '#F2F6F8',
+              }}
               contentContainerStyle={{
                 width: '100%',
-                height:
-                  tabId == 0 && panel !== true
-                    ? 188 * data.detail.subTask.length
-                    : tabId == 1 && panel !== true
-                    ? 140 * data.detail.discussions.length
-                    : tabId == 2 && panel !== true
-                    ? 129 * data.detail.files.length
-                    : undefined,
                 alignItems: 'center',
                 alignSelf: 'center',
                 backgroundColor: '#F2F6F8',
-                paddingBottom: 50,
+                paddingBottom: tabId === 1 ? 100 : 50, // Tambah padding bottom untuk comments
+                flexGrow: 1, // Tambahkan flexGrow
               }}>
               {tabId == 0
                 ? SubTask(data.detail.subTask)
@@ -1029,134 +981,190 @@ const Detail: FC<Props> = ({navigation, route}: any) => {
                 ? Discussion(data.detail.discussions)
                 : Files(data.detail.files)}
             </ScrollView>
-              
           </View>
         )}
       </SlidingUpPanel>
-        {tabId == 1 ? (
-          <>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 120} // Sesuaikan offset
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: '#FFF'
-              }}
-            >
-              <View
-                style={{
-                  height: 60,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  borderTopWidth: 1,
-                  borderStartWidth: 1,
-                  borderEndWidth: 1,
-                  borderTopRightRadius: 5,
-                  borderTopLeftRadius: 5,
-                  backgroundColor: '#FFF',
-                  borderColor: '#DEE2E6',
-                  paddingHorizontal: 10,
-                }}>
-                <TextInput
-                  onChangeText={(text: any) => setComment(text)}
-                  placeholderTextColor="#CED4DA"
-                  style={{
-                    paddingLeft: 10,
-                    flex: 1,
-                    color: '#10180F',
-                    fontFamily: 'NunitoSans-Regular',
-                    fontSize: 14,
-                  }}
-                  value={Comment}
-                  selectionColor={'#1B7472'}
-                  placeholder="Comment here"
-                />
-                <TouchableOpacity
-                  onPress={() => submit()}
-                  style={{height: 30, width: 30, marginTop: 5}}>
-                  <MaterialIcon name="send" size={22} color={'#ADB5BD'} />
-                </TouchableOpacity>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    borderRadius: 5,
-                    alignItems: 'center',
-                    paddingHorizontal: 5,
-                  }}>
-                  <View
-                    style={{
-                      height: 25,
-                      borderLeftWidth: 1,
-                      borderLeftColor: '#ADB5BD',
-                    }}
-                  />
-                  <TouchableOpacity
-                    style={{marginHorizontal: 10}}
-                    onPress={chooseAction}>
-                    {image !== '' ? (
-                      <Image
-                        source={{uri: image}}
-                        style={{width: 22, height: 22}}
-                      />
-                    ) : (
-                      <MaterialIcon
-                        name="attach-file"
-                        size={22}
-                        color="#ADB5BD"
-                      />
-                    )}
-                  </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={() => {
-                      setImage('');
-                      setFile('');
-                    }}>
-                    <MaterialIcon name="cancel" size={22} color="#ADB5BD" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </KeyboardAvoidingView>
-          </>
-      ) : null}
-      <Modal animationType="none" transparent={true} visible={modalVisible}>
-        <View style={{flex: 1, backgroundColor: '#FFF'}}>
-          <TouchableOpacity
-            style={{margin: 20, flexDirection: 'row', alignItems: 'center'}}
-            onPress={() => setModalVisible(!modalVisible)}>
-            <Text>Close</Text>
+      {/* Input comment hanya muncul di tab comments */}
+      {tabId == 1 && (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 120}
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: '#FFF'
+          }}
+        >
+          <View
+            style={{
+              height: 60,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderTopWidth: 1,
+              borderStartWidth: 1,
+              borderEndWidth: 1,
+              borderTopRightRadius: 5,
+              borderTopLeftRadius: 5,
+              backgroundColor: '#FFF',
+              borderColor: '#DEE2E6',
+              paddingHorizontal: 10,
+            }}>
+            <TextInput
+              onChangeText={(text: any) => setComment(text)}
+              placeholderTextColor="#CED4DA"
+              style={{
+                paddingLeft: 10,
+                flex: 1,
+                color: '#10180F',
+                fontFamily: 'NunitoSans-Regular',
+                fontSize: 14,
+              }}
+              value={Comment}
+              selectionColor={'#1B7472'}
+              placeholder="Comment here"
+            />
+            <TouchableOpacity
+              onPress={() => submit()}
+              style={{height: 30, width: 30, marginTop: 5}}>
+              <MaterialIcon name="send" size={22} color={'#ADB5BD'} />
+            </TouchableOpacity>
             <View
               style={{
-                marginLeft: 4,
-                width: 20,
-                height: 20,
-                borderColor: '#c4c4c4',
-                borderWidth: 1,
+                flexDirection: 'row',
+                borderRadius: 5,
                 alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 100,
+                paddingHorizontal: 5,
               }}>
-              <MaterialIcon name="close" />
+              <View
+                style={{
+                  height: 25,
+                  borderLeftWidth: 1,
+                  borderLeftColor: '#ADB5BD',
+                }}
+              />
+              <TouchableOpacity
+                style={{marginHorizontal: 10}}
+                onPress={chooseAction}>
+                {image !== '' ? (
+                  <Image
+                    source={{uri: image}}
+                    style={{width: 22, height: 22}}
+                  />
+                ) : (
+                  <MaterialIcon
+                    name="attach-file"
+                    size={22}
+                    color="#ADB5BD"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setImage('');
+                  setFile('');
+                }}>
+                <MaterialIcon name="cancel" size={22} color="#ADB5BD" />
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          <View style={{flex: 1, marginTop: 120}}>
-            <Image
-              source={{
-                uri: viewImage,
-              }}
-              style={{
-                height: 300,
-                width: '100%',
-              }}
-            />
           </View>
-        </View>
+        </KeyboardAvoidingView>
+      )}
+
+      {/* Modal untuk view image dengan zoom - menggunakan react-native-image-zoom-viewer */}
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
+        <ImageViewer
+          imageUrls={images}
+          index={imageIndex}
+          onSwipeDown={() => setModalVisible(false)}
+          enableSwipeDown={true}
+          renderHeader={() => (
+            <View style={{
+              position: 'absolute',
+              top: 40,
+              right: 20,
+              zIndex: 10,
+              backgroundColor: 'rgba(255,255,255,0.8)',
+              borderRadius: 20,
+              padding: 8,
+            }}>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <MaterialIcon name="close" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+          )}
+          renderIndicator={() => null}
+          backgroundColor="rgba(0,0,0,0.9)"
+          enableImageZoom={true}
+          saveToLocalByLongPress={false}
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          imageStyle={{
+            width: deviceWidth,
+            height: deviceHeight * 0.8,
+          }}
+          renderImage={(props) => (
+            <View style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: deviceWidth,
+              height: deviceHeight,
+            }}>
+              <Image 
+                {...props} 
+                style={{
+                  width: deviceWidth - 40,
+                  height: deviceHeight * 0.6,
+                  maxWidth: deviceWidth - 40,
+                  maxHeight: deviceHeight * 0.6,
+                }}
+                resizeMode="contain"
+              />
+            </View>
+          )}
+          renderFooter={() => (
+            <View style={{
+              position: 'absolute',
+              bottom: 50,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+            }}>
+              <Text style={{
+                color: '#FFF',
+                fontSize: 14,
+                fontFamily: 'NunitoSans-Regular',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                paddingHorizontal: 15,
+                paddingVertical: 8,
+                borderRadius: 20,
+              }}>
+                Pinch to zoom • Swipe down to close
+              </Text>
+            </View>
+          )}
+          // Props tambahan untuk positioning yang lebih baik
+          cropAlignY={0.5}
+          cropAlignX={0.5}
+          panToMove={true}
+          pinchToZoom={true}
+          clickInterval={250}
+          maxOverflow={500}
+          minScale={0.5}
+          maxScale={8}
+          doubleClickInterval={175}
+        />
       </Modal>
 
+      {/* Modal untuk pilihan camera/gallery */}
       <Modal animationType="slide" transparent={true} visible={visibleCamera}>
         <TouchableOpacity
           style={{
